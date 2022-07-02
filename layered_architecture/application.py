@@ -1,12 +1,12 @@
 import argparse
 
-from layered_architecture.model import Chef, MenuOption
+from layered_architecture.model import Chef
 
 
 def main(menu_option: str):
     chef = Chef()
-    menu_option = MenuOption(menu_option)
     menu = chef.cook_menu(menu_option)
+    print(f"{menu_option} is cooked, calorie: {menu.calorie}")
     return menu
 
 
