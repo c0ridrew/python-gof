@@ -1,26 +1,15 @@
 import enum
 from dataclasses import dataclass, field
-from typing import Callable, List
+from typing import Callable, List, Tuple
 
-from layered_architecture.infrastructure import (
-    FoodData,
-    FoodType,
-    get_carrot,
-    get_curry_powder,
-    get_onion,
-    get_potato,
-    get_sake,
-    get_soy_sauce,
-)
+from layered_architecture.infrastructure import FoodData, FoodType, Infrastructure
 
 
-# 料理オプション
 class MenuOption(enum.Enum):
     curry = "curry"
     nikujyaga = "nikujyaga"
 
 
-# 食材クラス
 @dataclass()
 class Ingredient:
     name: str
@@ -35,86 +24,88 @@ class Seasoning:
     calorie: int
     is_added: bool = False
 
-    def from_data(self, data: FoodData):
-        self.name = data.food_name
-        self.calorie = data.food_calorie
-        return self
-
 
 @dataclass()
 class Curry:
     name = "curry"
     calorie: int
+    ingredints: List[Ingredient]
+    seasonings: List[Seasoning]
 
 
 @dataclass()
 class Nikujyaga:
     name = "nikujyaga"
     calorie: int
+    ingredints: List[Ingredient]
+    seasonings: List[Seasoning]
 
 
 @dataclass()
 class DataFetcher:
+    infrastructure: Infrastructure
     ingredients: List[Ingredient] = field(default_factory=list)
     seasonings: List[Seasoning] = field(default_factory=list)
 
-    def fetch(self, menu: str):
-        if menu == MenuOption.curry.value:
+    def fetch(self, menu: MenuOption) -> Tuple[List[Ingredient], List[Seasoning]]:
+        if menu == MenuOption.curry:
             self._fetch_curry_ingredient()
-        elif menu == MenuOption.nikujyaga.value:
+        elif menu == MenuOption.nikujyaga:
             self._fetch_nikujyaga_ingredient()
         else:
             raise ValueError(f"Unsupported Menu {menu}")
+        return self.ingredients, self.seasonings
 
     def _fetch_curry_ingredient(self):
         self._fetch_common_ingredient()
-        self._fetch_data(get_curry_powder)
+        self._fetch_data(self.infrastructure.get_curry_powder)
         print("fetch curry ingeredients")
 
     def _fetch_nikujyaga_ingredient(self):
         self._fetch_common_ingredient()
-        self._fetch_data(get_sake)
-        self._fetch_data(get_soy_sauce)
+        self._fetch_data(self.infrastructure.get_sake)
+        self._fetch_data(self.infrastructure.get_soy_sauce)
         print("fetch nikujyaga ingeredients")
 
     def _fetch_common_ingredient(self):
-        self._fetch_data(get_carrot)
-        self._fetch_data(get_potato)
-        self._fetch_data(get_onion)
+        self._fetch_data(self.infrastructure.get_carrot)
+        self._fetch_data(self.infrastructure.get_potato)
+        self._fetch_data(self.infrastructure.get_onion)
 
-    def _fetch_data(self, get_func: Callable):
+    def _fetch_data(self, get_func: Callable[[], FoodData]):
         data = get_func()
-        if data.food_type == FoodType.ingredient.value:
-            self.ingredients.append(
-                Ingredient(name=data.food_name, calorie=data.food_calorie)
-            )
-        elif data.food_type == FoodType.seasoning.value:
-            self.seasonings.append(
-                Seasoning(name=data.food_name, calorie=data.food_calorie)
-            )
+        if data.type == FoodType.ingredient:
+            self.ingredients.append(Ingredient(name=data.name, calorie=data.calorie))
+        elif data.type == FoodType.seasoning:
+            self.seasonings.append(Seasoning(name=data.name, calorie=data.calorie))
         else:
-            raise ValueError(f"Invalid food_type of {data.food_type}")
+            raise ValueError(f"Invalid food_type of {data.type}")
 
 
 @dataclass()
 class Chef:
-    data_fetcher = DataFetcher()
     is_water_boiled: bool = False
 
-    def cook_menu(self, menu: str):
-        self.data_fetcher.fetch(menu)
-        ingredients = self.data_fetcher.ingredients
-        seasonings = self.data_fetcher.seasonings
+    def cook_menu(
+        self,
+        ingredients: List[Ingredient],
+        seasonings: List[Seasoning],
+        menu: MenuOption,
+    ):
         self._cut_ingredient(ingredients)
         self._cook_ingredient(ingredients)
         self._boil_water()
         self._add_seasoning(seasonings)
         total_calorie = self._calc_total_calorie(ingredients, seasonings)
 
-        if menu == MenuOption.curry.value:
-            return Curry(calorie=total_calorie)
-        elif menu == MenuOption.nikujyaga.value:
-            return Nikujyaga(calorie=total_calorie)
+        if menu == MenuOption.curry:
+            return Curry(
+                calorie=total_calorie, ingredints=ingredients, seasonings=seasonings
+            )
+        elif menu == MenuOption.nikujyaga:
+            return Nikujyaga(
+                calorie=total_calorie, ingredints=ingredients, seasonings=seasonings
+            )
         else:
             raise ValueError("Unsupported Menu")
 

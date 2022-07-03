@@ -1,17 +1,22 @@
-import argparse
+from dataclasses import dataclass
 
-from layered_architecture.model import Chef
-
-
-def main(menu_option: str):
-    chef = Chef()
-    menu = chef.cook_menu(menu_option)
-    print(f"{menu_option} is cooked, calorie: {menu.calorie}")
-    return menu
+from layered_architecture.domain import Chef, DataFetcher, MenuOption
+from layered_architecture.infrastructure import Infrastructure
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--menu", choices=["curry", "nikujyaga"])
-    args = parser.parse_args()
-    main(args.menu)
+@dataclass()
+class CreateMenuApplication:
+    infrastructure: Infrastructure = Infrastructure()
+
+    def handle(self, menu_input: str):
+        if menu_input == MenuOption.curry.value:
+            menu = MenuOption.curry
+        elif menu_input == MenuOption.nikujyaga.value:
+            menu = MenuOption.nikujyaga
+        else:
+            raise ValueError(f"invalid menu: {menu_input}")
+
+        ingredients, seasonings = DataFetcher(self.infrastructure).fetch(menu)
+        return Chef().cook_menu(
+            ingredients=ingredients, seasonings=seasonings, menu=menu
+        )

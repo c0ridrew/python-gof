@@ -10,40 +10,74 @@ class FoodType(enum.Enum):
 
 @dataclass()
 class FoodData:
-    food_name: str
-    food_calorie: int
-    food_type: str
+    name: str
+    calorie: int
+    type: FoodType
 
 
-def get_onion() -> FoodData:
-    raw_data = {"food_name": "onion", "food_calorie": 20, "food_type": "ingredient"}
-    return FoodData(**raw_data)
+class Infrastructure:
+    @staticmethod
+    def get_onion() -> FoodData:
+        data = {"food_name": "onion", "food_calorie": 20}
+        return FoodData(
+            name=data["food_name"],
+            calorie=data["food_calorie"],
+            type=FoodType.ingredient,
+        )
 
+    @staticmethod
+    def get_potato() -> FoodData:
+        data = {
+            "food_name": "potato",
+            "food_calorie": 30,
+        }
+        return FoodData(
+            name=data["food_name"],
+            calorie=data["food_calorie"],
+            type=FoodType.ingredient,
+        )
 
-def get_potato() -> FoodData:
-    raw_data = {"food_name": "potato", "food_calorie": 30, "food_type": "ingredient"}
-    return FoodData(**raw_data)
+    @staticmethod
+    def get_carrot() -> FoodData:
+        data = {
+            "food_name": "carrot",
+            "food_calorie": 40,
+        }
+        return FoodData(
+            name=data["food_name"],
+            calorie=data["food_calorie"],
+            type=FoodType.ingredient,
+        )
 
+    @staticmethod
+    def get_curry_powder() -> FoodData:
+        data = {
+            "food_name": "curry_powder",
+            "food_calorie": 20,
+        }
+        return FoodData(
+            name=data["food_name"],
+            calorie=data["food_calorie"],
+            type=FoodType.seasoning,
+        )
 
-def get_carrot() -> FoodData:
-    raw_data = {"food_name": "carrot", "food_calorie": 40, "food_type": "ingredient"}
-    return FoodData(**raw_data)
+    @staticmethod
+    def get_soy_sauce() -> FoodData:
+        data = {
+            "food_name": "soy_sauce",
+            "food_calorie": 25,
+        }
+        return FoodData(
+            name=data["food_name"],
+            calorie=data["food_calorie"],
+            type=FoodType.seasoning,
+        )
 
-
-def get_curry_powder() -> FoodData:
-    raw_data = {
-        "food_name": "curry_powder",
-        "food_calorie": 20,
-        "food_type": "seasoning",
-    }
-    return FoodData(**raw_data)
-
-
-def get_soy_sauce() -> FoodData:
-    raw_data = {"food_name": "soy_sauce", "food_calorie": 25, "food_type": "seasoning"}
-    return FoodData(**raw_data)
-
-
-def get_sake() -> FoodData:
-    raw_data = {"food_name": "sake", "food_calorie": 40, "food_type": "seasoning"}
-    return FoodData(**raw_data)
+    @staticmethod
+    def get_sake() -> FoodData:
+        data = {"food_name": "sake", "food_calorie": 40}
+        return FoodData(
+            name=data["food_name"],
+            calorie=data["food_calorie"],
+            type=FoodType.seasoning,
+        )
