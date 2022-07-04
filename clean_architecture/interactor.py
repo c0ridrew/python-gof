@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Callable, List
 
+from injector import inject
+
 from clean_architecture.entity import Curry, Ingredient, Nikujyaga, Seasoning
 from clean_architecture.i_presenter import ICreateMenuPresenter
 from clean_architecture.i_repository import IRepository
@@ -99,6 +101,7 @@ class Chef:
         self.is_water_boiled = True
 
 
+@inject
 @dataclass()
 class CreateMenuInteractor(ICreateMenuUseCase):
     repository: IRepository

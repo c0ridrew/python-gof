@@ -1,9 +1,12 @@
 from dataclasses import dataclass
 
+from injector import inject
+
 from clean_architecture.i_use_case import ICreateMenuUseCase
 from clean_architecture.input_data import CreateMenuInputData
 
 
+@inject
 @dataclass()
 class CreateMenuController:
     create_menu_usecase: ICreateMenuUseCase
