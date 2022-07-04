@@ -7,8 +7,6 @@ from clean_architecture.i_repository import IRepository
 from clean_architecture.i_use_case import ICreateMenuUseCase
 from clean_architecture.input_data import CreateMenuInputData, InputMenuOption
 from clean_architecture.output_data import CreateMenuOutputData
-from clean_architecture.presenter import CreateMenuPresenter
-from clean_architecture.repository import Repository
 
 
 @dataclass()
@@ -67,30 +65,31 @@ class Chef:
         self._add_seasoning(seasonings)
         total_calorie = self._calc_total_calorie(ingredients, seasonings)
 
-        if isinstance(menu, Ingredient):
-            return Curry(calorie=total_calorie)
-        elif isinstance(menu, Seasoning):
-            return Nikujyaga(calorie=total_calorie)
+        if menu == InputMenuOption.curry:
+            return Curry(
+                calorie=total_calorie, ingredints=ingredients, seasonings=seasonings
+            )
+        elif menu == InputMenuOption.nikujyaga:
+            return Nikujyaga(
+                calorie=total_calorie, ingredints=ingredients, seasonings=seasonings
+            )
         else:
-            raise ValueError("Unsupported Menu")
+            raise ValueError(f"Unsupported Menu: {menu}")
 
     @staticmethod
     def _cut_ingredient(ingredients: List[Ingredient]):
         for ingredient in ingredients:
             ingredient.is_cut = True
-            print(f"cut {ingredient.name}")
 
     @staticmethod
     def _cook_ingredient(ingredients: List[Ingredient]):
         for ingredient in ingredients:
             ingredient.is_cooked = True
-            print(f"cook {ingredient.name}")
 
     @staticmethod
     def _add_seasoning(seasonings: List[Seasoning]):
         for seasoning in seasonings:
             seasoning.is_added = True
-            print(f"add {seasoning.name}")
 
     @staticmethod
     def _calc_total_calorie(ingredients, seasonings):
@@ -98,13 +97,12 @@ class Chef:
 
     def _boil_water(self):
         self.is_water_boiled = True
-        print("boil water")
 
 
 @dataclass()
 class CreateMenuInteractor(ICreateMenuUseCase):
-    repository: IRepository = Repository()
-    presenter: ICreateMenuPresenter = CreateMenuPresenter()
+    repository: IRepository
+    presenter: ICreateMenuPresenter
 
     def handle(self, input_data: CreateMenuInputData):
         data_fetcher = DataFetcher(self.repository)

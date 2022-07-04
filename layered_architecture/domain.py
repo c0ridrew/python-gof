@@ -59,13 +59,11 @@ class DataFetcher:
     def _fetch_curry_ingredient(self):
         self._fetch_common_ingredient()
         self._fetch_data(self.infrastructure.get_curry_powder)
-        print("fetch curry ingeredients")
 
     def _fetch_nikujyaga_ingredient(self):
         self._fetch_common_ingredient()
         self._fetch_data(self.infrastructure.get_sake)
         self._fetch_data(self.infrastructure.get_soy_sauce)
-        print("fetch nikujyaga ingeredients")
 
     def _fetch_common_ingredient(self):
         self._fetch_data(self.infrastructure.get_carrot)
@@ -107,25 +105,22 @@ class Chef:
                 calorie=total_calorie, ingredints=ingredients, seasonings=seasonings
             )
         else:
-            raise ValueError("Unsupported Menu")
+            raise ValueError(f"Unsupported Menu: {menu}")
 
     @staticmethod
     def _cut_ingredient(ingredients: List[Ingredient]):
         for ingredient in ingredients:
             ingredient.is_cut = True
-            print(f"cut {ingredient.name}")
 
     @staticmethod
     def _cook_ingredient(ingredients: List[Ingredient]):
         for ingredient in ingredients:
             ingredient.is_cooked = True
-            print(f"cook {ingredient.name}")
 
     @staticmethod
     def _add_seasoning(seasonings: List[Seasoning]):
         for seasoning in seasonings:
             seasoning.is_added = True
-            print(f"add {seasoning.name}")
 
     @staticmethod
     def _calc_total_calorie(ingredients, seasonings):
@@ -133,4 +128,3 @@ class Chef:
 
     def _boil_water(self):
         self.is_water_boiled = True
-        print("boil water")

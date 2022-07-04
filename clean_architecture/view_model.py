@@ -3,5 +3,5 @@ from dataclasses import dataclass
 
 @dataclass()
 class CreateMenuViewModel:
-    menu_name: str
-    calorie: int
+    result_menu_name: str = ""
+    result_calorie: int = 0

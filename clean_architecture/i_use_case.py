@@ -5,5 +5,5 @@ from clean_architecture.input_data import CreateMenuInputData
 
 class ICreateMenuUseCase(ABC):
     @abstractmethod
-    def handle(self, input_date: CreateMenuInputData):
+    def handle(self, input_data: CreateMenuInputData):
         pass
