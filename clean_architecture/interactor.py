@@ -113,3 +113,17 @@ class CreateMenuInteractor(ICreateMenuUseCase):
 
         output_data = CreateMenuOutputData(menu_name=menu.name, calorie=menu.calorie)
         self.presenter.complete(output_data)
+
+
+@inject
+@dataclass()
+class DevCreateMenuInteractor(ICreateMenuUseCase):
+    repository: IRepository
+    presenter: ICreateMenuPresenter
+
+    def handle(self, input_data: CreateMenuInputData):
+        data_fetcher = DataFetcher(self.repository)
+        menu = Chef().cook_menu(input_data=input_data, data_fetcher=data_fetcher)
+
+        output_data = CreateMenuOutputData(menu_name=menu.name, calorie=menu.calorie)
+        self.presenter.complete(output_data)
