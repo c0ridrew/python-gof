@@ -1,7 +1,7 @@
 import argparse
 
 from clean_architecture.controller import CreateMenuController
-from clean_architecture.dependency import Dependency, DevDependency
+from clean_architecture.dependency import DevDependency
 from clean_architecture.view import CreateMenuView
 
 

@@ -2,12 +2,13 @@ import enum
 from dataclasses import dataclass
 
 
-# 料理データ
+# 食材の種別
 class FoodType(enum.Enum):
     seasoning = "seasoning"
     ingredient = "ingredient"
 
 
+# 食材データのデータ構造
 @dataclass()
 class FoodData:
     name: str
@@ -42,6 +43,18 @@ class Infrastructure:
         data = {
             "food_name": "carrot",
             "food_calorie": 40,
+        }
+        return FoodData(
+            name=data["food_name"],
+            calorie=data["food_calorie"],
+            type=FoodType.ingredient,
+        )
+
+    @staticmethod
+    def get_chicken() -> FoodData:
+        data = {
+            "food_name": "chicken",
+            "food_calorie": 100,
         }
         return FoodData(
             name=data["food_name"],

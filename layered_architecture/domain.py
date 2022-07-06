@@ -10,6 +10,7 @@ class MenuOption(enum.Enum):
     nikujyaga = "nikujyaga"
 
 
+# 食材データクラス
 @dataclass()
 class Ingredient:
     name: str
@@ -18,6 +19,7 @@ class Ingredient:
     is_cooked: bool = False
 
 
+# 調味料データクラス
 @dataclass()
 class Seasoning:
     name: str
@@ -25,6 +27,7 @@ class Seasoning:
     is_added: bool = False
 
 
+# カレーデータクラス
 @dataclass()
 class Curry:
     name = "curry"
@@ -33,6 +36,7 @@ class Curry:
     seasonings: List[Seasoning]
 
 
+# 肉じゃがデータクラス
 @dataclass()
 class Nikujyaga:
     name = "nikujyaga"
@@ -41,12 +45,14 @@ class Nikujyaga:
     seasonings: List[Seasoning]
 
 
+# データ取得クラス
 @dataclass()
 class DataFetcher:
-    infrastructure: Infrastructure
+    infrastructure: Infrastructure = Infrastructure()
     ingredients: List[Ingredient] = field(default_factory=list)
     seasonings: List[Seasoning] = field(default_factory=list)
 
+    # 呼び出し関数
     def fetch(self, menu: MenuOption) -> Tuple[List[Ingredient], List[Seasoning]]:
         if menu == MenuOption.curry:
             self._fetch_curry_ingredient()
@@ -56,20 +62,25 @@ class DataFetcher:
             raise ValueError(f"Unsupported Menu {menu}")
         return self.ingredients, self.seasonings
 
+    # カレーデータ取得
     def _fetch_curry_ingredient(self):
         self._fetch_common_ingredient()
         self._fetch_data(self.infrastructure.get_curry_powder)
 
+    # 肉じゃがデータ取得
     def _fetch_nikujyaga_ingredient(self):
         self._fetch_common_ingredient()
         self._fetch_data(self.infrastructure.get_sake)
         self._fetch_data(self.infrastructure.get_soy_sauce)
 
+    # 共通データ取得
     def _fetch_common_ingredient(self):
         self._fetch_data(self.infrastructure.get_carrot)
         self._fetch_data(self.infrastructure.get_potato)
         self._fetch_data(self.infrastructure.get_onion)
+        self._fetch_data(self.infrastructure.get_chicken)
 
+    # データ取得共通処理
     def _fetch_data(self, get_func: Callable[[], FoodData]):
         data = get_func()
         if data.type == FoodType.ingredient:
@@ -84,6 +95,7 @@ class DataFetcher:
 class Chef:
     is_water_boiled: bool = False
 
+    # 料理をする
     def cook_menu(
         self,
         ingredients: List[Ingredient],
@@ -107,24 +119,29 @@ class Chef:
         else:
             raise ValueError(f"Unsupported Menu: {menu}")
 
+    # 食材を切る
     @staticmethod
     def _cut_ingredient(ingredients: List[Ingredient]):
         for ingredient in ingredients:
             ingredient.is_cut = True
 
+    # 食材を炒める
     @staticmethod
     def _cook_ingredient(ingredients: List[Ingredient]):
         for ingredient in ingredients:
             ingredient.is_cooked = True
 
+    # 調味料を加える
     @staticmethod
     def _add_seasoning(seasonings: List[Seasoning]):
         for seasoning in seasonings:
             seasoning.is_added = True
 
+    # カロリーを計算する
     @staticmethod
     def _calc_total_calorie(ingredients, seasonings):
         return sum([i.calorie for i in ingredients + seasonings])
 
+    # 水を加える
     def _boil_water(self):
         self.is_water_boiled = True
