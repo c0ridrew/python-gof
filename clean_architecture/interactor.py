@@ -1,13 +1,13 @@
 from dataclasses import dataclass, field
-from typing import Callable, List
+from typing import Callable, List, Tuple
 
 from injector import inject
 
-from clean_architecture.entity import Curry, Ingredient, Nikujyaga, Seasoning
+from clean_architecture.entity import Chef, Ingredient, MenuOption, Seasoning
 from clean_architecture.i_presenter import ICreateMenuPresenter
 from clean_architecture.i_repository import IRepository
 from clean_architecture.i_use_case import ICreateMenuUseCase
-from clean_architecture.input_data import CreateMenuInputData, InputMenuOption
+from clean_architecture.input_data import CreateMenuInputData
 from clean_architecture.output_data import CreateMenuOutputData
 
 
@@ -17,14 +17,16 @@ class DataFetcher:
     ingredients: List[Ingredient] = field(default_factory=list)
     seasonings: List[Seasoning] = field(default_factory=list)
 
-    def fetch(self, input_data: CreateMenuInputData):
-        menu = input_data.menu
-        if menu == InputMenuOption.curry:
+    def fetch(
+        self, input_data: CreateMenuInputData
+    ) -> Tuple[List[Ingredient], List[Seasoning]]:
+        if input_data.menu == MenuOption.curry.value:
             self._fetch_curry_ingredient()
-        elif menu == InputMenuOption.nikujyaga:
+        elif input_data.menu == MenuOption.nikujyaga.value:
             self._fetch_nikujyaga_ingredient()
         else:
-            raise ValueError(f"Unsupported Menu {menu}")
+            raise ValueError(f"Unsupported Menu {input_data.menu}")
+        return self.ingredients, self.seasonings
 
     def _fetch_curry_ingredient(self):
         self._fetch_common_ingredient()
@@ -52,55 +54,6 @@ class DataFetcher:
             raise ValueError(f"Invalid food_type of {data.food_type}")
 
 
-@dataclass()
-class Chef:
-    is_water_boiled: bool = False
-
-    def cook_menu(self, input_data: CreateMenuInputData, data_fetcher: DataFetcher):
-        menu = input_data.menu
-        data_fetcher.fetch(input_data)
-        ingredients = data_fetcher.ingredients
-        seasonings = data_fetcher.seasonings
-        self._cut_ingredient(ingredients)
-        self._cook_ingredient(ingredients)
-        self._boil_water()
-        self._add_seasoning(seasonings)
-        total_calorie = self._calc_total_calorie(ingredients, seasonings)
-
-        if menu == InputMenuOption.curry:
-            return Curry(
-                calorie=total_calorie, ingredints=ingredients, seasonings=seasonings
-            )
-        elif menu == InputMenuOption.nikujyaga:
-            return Nikujyaga(
-                calorie=total_calorie, ingredints=ingredients, seasonings=seasonings
-            )
-        else:
-            raise ValueError(f"Unsupported Menu: {menu}")
-
-    @staticmethod
-    def _cut_ingredient(ingredients: List[Ingredient]):
-        for ingredient in ingredients:
-            ingredient.is_cut = True
-
-    @staticmethod
-    def _cook_ingredient(ingredients: List[Ingredient]):
-        for ingredient in ingredients:
-            ingredient.is_cooked = True
-
-    @staticmethod
-    def _add_seasoning(seasonings: List[Seasoning]):
-        for seasoning in seasonings:
-            seasoning.is_added = True
-
-    @staticmethod
-    def _calc_total_calorie(ingredients, seasonings):
-        return sum([i.calorie for i in ingredients + seasonings])
-
-    def _boil_water(self):
-        self.is_water_boiled = True
-
-
 @inject
 @dataclass()
 class CreateMenuInteractor(ICreateMenuUseCase):
@@ -108,8 +61,10 @@ class CreateMenuInteractor(ICreateMenuUseCase):
     presenter: ICreateMenuPresenter
 
     def handle(self, input_data: CreateMenuInputData):
-        data_fetcher = DataFetcher(self.repository)
-        menu = Chef().cook_menu(input_data=input_data, data_fetcher=data_fetcher)
+        ingredients, seasonings = DataFetcher(self.repository).fetch(input_data)
+        menu = Chef().cook_menu(
+            ingredients=ingredients, seasonings=seasonings, input_data=input_data
+        )
 
         output_data = CreateMenuOutputData(menu_name=menu.name, calorie=menu.calorie)
         self.presenter.complete(output_data)
@@ -122,8 +77,10 @@ class DevCreateMenuInteractor(ICreateMenuUseCase):
     presenter: ICreateMenuPresenter
 
     def handle(self, input_data: CreateMenuInputData):
-        data_fetcher = DataFetcher(self.repository)
-        menu = Chef().cook_menu(input_data=input_data, data_fetcher=data_fetcher)
+        ingredients, seasonings = DataFetcher(self.repository).fetch(input_data)
+        menu = Chef().cook_menu(
+            ingredients=ingredients, seasonings=seasonings, input_data=input_data
+        )
 
         output_data = CreateMenuOutputData(menu_name=menu.name, calorie=menu.calorie)
         self.presenter.complete(output_data)

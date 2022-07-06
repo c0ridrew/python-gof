@@ -2,6 +2,8 @@ import enum
 from dataclasses import dataclass
 from typing import List
 
+from clean_architecture.input_data import CreateMenuInputData
+
 
 @dataclass()
 class Ingredient:
@@ -48,7 +50,7 @@ class Chef:
         self,
         ingredients: List[Ingredient],
         seasonings: List[Seasoning],
-        menu: MenuOption,
+        input_data: CreateMenuInputData,
     ):
         self._cut_ingredient(ingredients)
         self._cook_ingredient(ingredients)
@@ -56,16 +58,16 @@ class Chef:
         self._add_seasoning(seasonings)
         total_calorie = self._calc_total_calorie(ingredients, seasonings)
 
-        if menu == MenuOption.curry:
+        if input_data.menu == MenuOption.curry:
             return Curry(
                 calorie=total_calorie, ingredints=ingredients, seasonings=seasonings
             )
-        elif menu == MenuOption.nikujyaga:
+        elif input_data.menu == MenuOption.nikujyaga:
             return Nikujyaga(
                 calorie=total_calorie, ingredints=ingredients, seasonings=seasonings
             )
         else:
-            raise ValueError(f"Unsupported Menu: {menu}")
+            raise ValueError(f"Unsupported Menu: {input_data.menu}")
 
     @staticmethod
     def _cut_ingredient(ingredients: List[Ingredient]):
