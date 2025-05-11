@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      # install & configure poetry
+      # install & configure poetryy
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
